@@ -12,11 +12,17 @@ var imageData;
 // CA variables
 var cellSize = 5;
 var gridWidth = width / cellSize;
+var gridHeight = height / cellSize;
 var generation = 0;
 
 var ruleset = [0, 1, 0, 1];	
 var cells = Array(gridWidth);
 var nextgen = Array();
+
+// seed the cells[] 1d array with random values set at 0 or 1
+for (let i = 0; i < cells.length; i++) {
+	cells[i] = (Math.floor((2 * Math.random())));
+}
 
 // graphics initialization
 const createDrawSurfaces = () => {
@@ -41,41 +47,36 @@ const redraw = () => {
 
 	// you can experiment with your own drawing code here, for instance:
 
-	for (let i = 1; i < cells.length - 1; i++) { // modified to ignore left/right boundaries
+	if (generation < (gridHeight)) { // added so it doesnt just keep "drawing" outside of the canvas (defined by gridHeight)
 
-		var left = cells[i - 1];
-		var middle = cells[i];
-		var right = cells[i + 1];
-
-		var index = left + middle + right;
-
-		nextgen[i] = ruleset[index]; 
-
-		cells[i] = nextgen[i];
-
-	}
-
-	console.log(generation);
-	generation++;
-
-	for (let i = 0; i < cells.length; i++){ 
-
-		if (cells[i] == 1) {
+		for (let i = 1; i < cells.length - 1; i++) { // cells[1] through cells [gridWidth - 1], modified to ignore left/right boundaries
+			var left = cells[i - 1];
+			var middle = cells[i];
+			var right = cells[i + 1];
+			var index = left + middle + right;
 			
-			context.fillStyle = "green"; 
-			context.fillRect(((i * cellSize) + (width /2)) - ((cells.length * cellSize) / 2), generation * cellSize, cellSize, cellSize);
-
-		} else {
-
-			context.fillStyle = "white"; 
-			context.fillRect(((i * cellSize) + (width /2)) - ((cells.length * cellSize) / 2), generation * cellSize, cellSize, cellSize);
+			nextgen[i] = ruleset[index]; 
+			cells[i] = nextgen[i];
 		}
+
+		console.log(generation);
+		
+		for (let i = 0; i < cells.length; i++){ 
+
+			if (cells[i] == 1) {
+				context.fillStyle = "green"; 
+				context.fillRect(((i * cellSize) + (width /2)) - ((cells.length * cellSize) / 2), generation * cellSize, cellSize, cellSize);
+			} else {
+				context.fillStyle = "white"; 
+				context.fillRect(((i * cellSize) + (width /2)) - ((cells.length * cellSize) / 2), generation * cellSize, cellSize, cellSize);
+			}
+		}
+		generation++;
 	}
 }
-
 const loop = () => {
 	redraw();
-
+	
 	// allow fps to be modified, using fps global var
 	setTimeout(function() {
 		requestAnimationFrame(loop);
@@ -127,24 +128,11 @@ const initializeGraphics = () => {
 	createDrawSurfaces();
 	setSize(); // run once at top, then on resize
 	window.onresize = setSize;
-
-
 }
 
 // entry point
 // when everything is loaded, set up and start running
 window.onload = () => {
 	initializeGraphics();
-
-	// seed the cells[] 1d array with random values set at 0 or 1
-	for (let i = 0; i < cells.length; i++) {
-
-		cells[i] = (Math.floor((2 * Math.random())));
-
-	}
-
-	context.fillStyle = "white"; // <<-- customize clear color here
-	context.fillRect(0, 0, width, height);
-
 	loop(); // calling the update loop once starts it running
 }
