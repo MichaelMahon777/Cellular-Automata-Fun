@@ -15,13 +15,48 @@ var gridWidth = width / cellSize;
 var gridHeight = height / cellSize;
 var generation = 0;
 
-var ruleset = [0, 1, 0, 1];	
+var ruleset = Array(7);			// I set array size to accomodate max index calculated below
 var cells = Array(gridWidth);
 var nextgen = Array();
 
-// seed the cells[] 1d array with random values set at 0 or 1
-for (let i = 0; i < cells.length; i++) {
-	cells[i] = (Math.floor((2 * Math.random())));
+console.log("gridWidth: " + gridWidth);
+
+console.log("gridHeight: " + gridHeight);
+
+// Array initialization
+function initializeArrays() {
+
+	// seed the cells[] 1d array with random values set at 0, 1 or 2
+	for (let i = 0; i < cells.length; i++) {
+	cells[i] = (Math.floor(Math.random() * Math.floor(3)));
+	}
+
+	console.log("Cells seed: {" + cells + "}");
+
+	for (let i = 0; i < cells.length; i++){ 	//draws the first cells[] seed row
+
+		if (cells[i] == 0) {
+			context.fillStyle = '#FB8604';  //orange
+			context.fillRect(((i * cellSize) + (width /2)) - ((cells.length * cellSize) / 2), generation * cellSize, cellSize, cellSize);
+		
+		} else if (cells[i] == 1) {
+			context.fillStyle = "#FCBA12"; //light orange
+			context.fillRect(((i * cellSize) + (width /2)) - ((cells.length * cellSize) / 2), generation * cellSize, cellSize, cellSize);
+		
+		} else if (cells[i] == 2) {
+			context.fillStyle = "#FDED2A"; //yellow
+			context.fillRect(((i * cellSize) + (width /2)) - ((cells.length * cellSize) / 2), generation * cellSize, cellSize, cellSize);
+		}
+		
+	}
+	generation++;
+
+	// seed the ruleset[] 1d array with random values set at 0, 1 or 2
+	for (let i = 0; i < ruleset.length; i++) {
+	ruleset[i] = (Math.floor(Math.random() * Math.floor(3)));
+	}
+
+	console.log("Ruleset: {" + ruleset + "}");
 }
 
 // graphics initialization
@@ -36,8 +71,6 @@ const createDrawSurfaces = () => {
 	document.body.appendChild(canvas);
 }
 
-const redraw = () => {
-
 //  ____                     _             
 // |  _ \ _ __ __ ___      _(_)_ __   __ _ 
 // | | | | '__/ _` \ \ /\ / / | '_ \ / _` |
@@ -45,34 +78,46 @@ const redraw = () => {
 // |____/|_|  \__,_| \_/\_/ |_|_| |_|\__, |
 //                                   |___/ 
 
-	// you can experiment with your own drawing code here, for instance:
+// TODO: bind functions to keys: 
+//		** Mutate rules with input: use JSON.stringify, JSON.parse to save/load array values
+//		** reset rules 
+//		** print console information to text file
+
+const redraw = () => {
 
 	if (generation < (gridHeight)) { // added so it doesnt just keep "drawing" outside of the canvas (defined by gridHeight)
 
-		for (let i = 1; i < cells.length - 1; i++) { // cells[1] through cells [gridWidth - 1], modified to ignore left/right boundaries
-			var left = cells[i - 1];
+		for (let i = 0; i < cells.length; i++) { 
+			var left = cells[(i - 1 + cells.length) % cells.length]; // handles edges by wrapping around
 			var middle = cells[i];
-			var right = cells[i + 1];
-			var index = left + middle + right;
+			var right = cells[(i + 1) % cells.length];
 			
-			nextgen[i] = ruleset[index]; 
+			var index = left + middle + right;	// with states: 0, 1 or 2: max index is 6
+			
+			nextgen[i] = ruleset[index];
 			cells[i] = nextgen[i];
+
 		}
 
-		console.log(generation);
-		
 		for (let i = 0; i < cells.length; i++){ 
 
-			if (cells[i] == 1) {
-				context.fillStyle = "green"; 
+			if (cells[i] == 0) {
+				context.fillStyle = '#FB8604';  //orange
 				context.fillRect(((i * cellSize) + (width /2)) - ((cells.length * cellSize) / 2), generation * cellSize, cellSize, cellSize);
-			} else {
-				context.fillStyle = "white"; 
+			
+			} else if (cells[i] == 1) {
+				context.fillStyle = "#FCBA12"; //light orange
 				context.fillRect(((i * cellSize) + (width /2)) - ((cells.length * cellSize) / 2), generation * cellSize, cellSize, cellSize);
+			
+			} else if (cells[i] == 2) {
+				context.fillStyle = "#FDED2A"; //yello
+				context.fillRect(((i * cellSize) + (width /2)) - ((cells.length * cellSize) / 2), generation * cellSize, cellSize, cellSize);
+
 			}
 		}
 		generation++;
-	}
+
+		}
 }
 const loop = () => {
 	redraw();
@@ -126,6 +171,7 @@ const setSize = () => {
 
 const initializeGraphics = () => {
 	createDrawSurfaces();
+	initializeArrays();
 	setSize(); // run once at top, then on resize
 	window.onresize = setSize;
 }
