@@ -19,19 +19,19 @@ var ruleset = Array(7);			// I set array size to accomodate max index calculated
 var cells = Array(gridWidth);
 var nextgen = Array();
 
-console.log("gridWidth: " + gridWidth);
+//  ___       _ _   _       _ _              _                             
+// |_ _|_ __ (_) |_(_) __ _| (_)_______     / \   _ __ _ __ __ _ _   _ ___ 
+//  | || '_ \| | __| |/ _` | | |_  / _ \   / _ \ | '__| '__/ _` | | | / __|
+//  | || | | | | |_| | (_| | | |/ /  __/  / ___ \| |  | | | (_| | |_| \__ \
+// |___|_| |_|_|\__|_|\__,_|_|_/___\___| /_/   \_\_|  |_|  \__,_|\__, |___/
+//                                                               |___/ 
 
-console.log("gridHeight: " + gridHeight);
-
-// Array initialization
-function initializeArrays() {
+function random_cell_row() {
 
 	// seed the cells[] 1d array with random values set at 0, 1 or 2
 	for (let i = 0; i < cells.length; i++) {
 	cells[i] = (Math.floor(Math.random() * Math.floor(3)));
 	}
-
-	console.log("Cells seed: {" + cells + "}");
 
 	for (let i = 0; i < cells.length; i++){ 	//draws the first cells[] seed row
 
@@ -51,13 +51,53 @@ function initializeArrays() {
 	}
 	generation++;
 
+	console.log("Cells[] initialized as row");
+}
+
+function random_cell_single() {
+
+	// seed the cells[] 1d array with random values set at 0, 1 or 2
+	for (let i = 0; i < cells.length; i++) {
+		cells[i] = 2;
+	}
+
+	cells[(gridWidth/2)] = 0;
+
+	for (let i = 0; i < cells.length; i++){ 	//draws the first cells[] seed row
+
+		if (cells[i] == 0) {
+			context.fillStyle = '#FB8604';  //orange
+			context.fillRect(((i * cellSize) + (width /2)) - ((cells.length * cellSize) / 2), generation * cellSize, cellSize, cellSize);
+		
+		} else if (cells[i] == 1) {
+			context.fillStyle = "#FCBA12"; //light orange
+			context.fillRect(((i * cellSize) + (width /2)) - ((cells.length * cellSize) / 2), generation * cellSize, cellSize, cellSize);
+		
+		} else if (cells[i] == 2) {
+			context.fillStyle = "#FDED2A"; //yellow
+			context.fillRect(((i * cellSize) + (width /2)) - ((cells.length * cellSize) / 2), generation * cellSize, cellSize, cellSize);
+		}		
+	}
+	generation++;
+
+	console.log("Cells[] initialized as single");
+}
+
+function random_ruleset(){
+
 	// seed the ruleset[] 1d array with random values set at 0, 1 or 2
 	for (let i = 0; i < ruleset.length; i++) {
 	ruleset[i] = (Math.floor(Math.random() * Math.floor(3)));
 	}
-
-	console.log("Ruleset: {" + ruleset + "}");
+	console.log("Randomized Ruleset: {" + ruleset + "}");
 }
+
+//  ____                     _             
+// |  _ \ _ __ __ ___      _(_)_ __   __ _ 
+// | | | | '__/ _` \ \ /\ / / | '_ \ / _` |
+// | |_| | | | (_| |\ V  V /| | | | | (_| |
+// |____/|_|  \__,_| \_/\_/ |_|_| |_|\__, |
+//                                   |___/ 
 
 // graphics initialization
 const createDrawSurfaces = () => {
@@ -71,18 +111,7 @@ const createDrawSurfaces = () => {
 	document.body.appendChild(canvas);
 }
 
-//  ____                     _             
-// |  _ \ _ __ __ ___      _(_)_ __   __ _ 
-// | | | | '__/ _` \ \ /\ / / | '_ \ / _` |
-// | |_| | | | (_| |\ V  V /| | | | | (_| |
-// |____/|_|  \__,_| \_/\_/ |_|_| |_|\__, |
-//                                   |___/ 
-
-// TODO: bind functions to keys: 
-//		** Mutate rules with input: use JSON.stringify, JSON.parse to save/load array values
-//		** reset rules 
-//		** print console information to text file
-
+// drawing details
 const redraw = () => {
 
 	if (generation < (gridHeight)) { // added so it doesnt just keep "drawing" outside of the canvas (defined by gridHeight)
@@ -95,30 +124,32 @@ const redraw = () => {
 			var index = left + middle + right;	// with states: 0, 1 or 2: max index is 6
 			
 			nextgen[i] = ruleset[index];
-			cells[i] = nextgen[i];
-
 		}
 
-		for (let i = 0; i < cells.length; i++){ 
+		for (let i = 0; i < cells.length; i++) {
 
-			if (cells[i] == 0) {
-				context.fillStyle = '#FB8604';  //orange
-				context.fillRect(((i * cellSize) + (width /2)) - ((cells.length * cellSize) / 2), generation * cellSize, cellSize, cellSize);
-			
-			} else if (cells[i] == 1) {
-				context.fillStyle = "#FCBA12"; //light orange
-				context.fillRect(((i * cellSize) + (width /2)) - ((cells.length * cellSize) / 2), generation * cellSize, cellSize, cellSize);
-			
-			} else if (cells[i] == 2) {
-				context.fillStyle = "#FDED2A"; //yello
-				context.fillRect(((i * cellSize) + (width /2)) - ((cells.length * cellSize) / 2), generation * cellSize, cellSize, cellSize);
-
-			}
+				cells[i] = nextgen[i];
 		}
-		generation++;
+	}
+	for (let i = 0; i < cells.length; i++){ 
+
+		if (cells[i] == 0) {
+			context.fillStyle = '#FB8604';  //orange
+			context.fillRect(((i * cellSize) + (width /2)) - ((cells.length * cellSize) / 2), generation * cellSize, cellSize, cellSize);
+		
+		} else if (cells[i] == 1) {
+			context.fillStyle = "#FCBA12"; //light orange
+			context.fillRect(((i * cellSize) + (width /2)) - ((cells.length * cellSize) / 2), generation * cellSize, cellSize, cellSize);
+		
+		} else if (cells[i] == 2) {
+			context.fillStyle = "#FDED2A"; //yellow
+			context.fillRect(((i * cellSize) + (width /2)) - ((cells.length * cellSize) / 2), generation * cellSize, cellSize, cellSize);
 
 		}
+	}		
+	generation++;
 }
+
 const loop = () => {
 	redraw();
 	
@@ -168,17 +199,65 @@ const setSize = () => {
 	console.log("--------------------------------");
 }
 
-
 const initializeGraphics = () => {
 	createDrawSurfaces();
-	initializeArrays();
 	setSize(); // run once at top, then on resize
 	window.onresize = setSize;
 }
 
-// entry point
+// TODO: Bind functions to keys:
+// 	** mutate rule
+//	** randomize rule
+//	** save and restore
+//  ** change cells[] initialization
+
+//  _____                 _     _   _                 _ _               
+// | ____|_   _____ _ __ | |_  | | | | __ _ _ __   __| | | ___ _ __ ___ 
+// |  _| \ \ / / _ \ '_ \| __| | |_| |/ _` | '_ \ / _` | |/ _ \ '__/ __|
+// | |___ \ V /  __/ | | | |_  |  _  | (_| | | | | (_| | |  __/ |  \__ \
+// |_____| \_/ \___|_| |_|\__| |_| |_|\__,_|_| |_|\__,_|_|\___|_|  |___/
+
+// define keypress functions
+function event_handlers(){
+
+	document.addEventListener("keypress", function onPress(event) {
+
+		if (event.key === "R"){			// reload page
+			location.reload();
+		}
+
+		if (event.key === "r"){			// randomizes ruleset[]
+		random_ruleset();
+		}
+
+		if (event.key === "1"){			// cells[] starts as a single cell top mid canvas
+		random_cell_single();
+		generation = 0;
+		}
+
+		if (event.key === "2"){			// cells[] starts as a random row at top of canvas
+		random_cell_row();
+		}
+
+		if (event.keyCode == 32){		// runs loop on spacebar press
+		loop();
+		}
+
+
+
+
+	});
+}
+
+//  _____       _                ____       _       _   
+// | ____|_ __ | |_ _ __ _   _  |  _ \ ___ (_)_ __ | |_ 
+// |  _| | '_ \| __| '__| | | | | |_) / _ \| | '_ \| __|
+// | |___| | | | |_| |  | |_| | |  __/ (_) | | | | | |_ 
+// |_____|_| |_|\__|_|   \__, | |_|   \___/|_|_| |_|\__|
+//                       |___/                          
 // when everything is loaded, set up and start running
+
 window.onload = () => {
 	initializeGraphics();
-	loop(); // calling the update loop once starts it running
+	event_handlers();
 }
