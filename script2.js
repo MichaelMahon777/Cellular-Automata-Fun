@@ -8,6 +8,7 @@ var fps = 60;
 var canvas;
 var context;
 var imageData;
+var count;
 
 // CA variables
 var cellSize = 5;
@@ -26,12 +27,7 @@ var nextgen = Array();
 // |___|_| |_|_|\__|_|\__,_|_|_/___\___| /_/   \_\_|  |_|  \__,_|\__, |___/
 //                                                               |___/ 
 
-function random_cell_row() {
-
-	// seed the cells[] 1d array with random values set at 0, 1 or 2
-	for (let i = 0; i < cells.length; i++) {
-	cells[i] = (Math.floor(Math.random() * Math.floor(3)));
-	}
+function draw_rows() {
 
 	for (let i = 0; i < cells.length; i++){ 	//draws the first cells[] seed row
 
@@ -47,14 +43,25 @@ function random_cell_row() {
 			context.fillStyle = "#FDED2A"; //yellow
 			context.fillRect(((i * cellSize) + (width /2)) - ((cells.length * cellSize) / 2), generation * cellSize, cellSize, cellSize);
 		}
-		
 	}
 	generation++;
-
-	console.log("Cells[] initialized as row");
 }
 
-function random_cell_single() {
+function random_cell_row() {
+
+	// seed the cells[] 1d array with random values set at 0, 1 or 2
+	for (let i = 0; i < cells.length; i++) {
+	cells[i] = (Math.floor(Math.random() * Math.floor(3)));
+	}
+
+	draw_rows();
+
+	console.log("Cells[] initialized as complete row across canvas");
+
+	// add a save thing here
+}
+
+function cell_single() {
 
 	// seed the cells[] 1d array with random values set at 0, 1 or 2
 	for (let i = 0; i < cells.length; i++) {
@@ -63,24 +70,9 @@ function random_cell_single() {
 
 	cells[(gridWidth/2)] = 0;
 
-	for (let i = 0; i < cells.length; i++){ 	//draws the first cells[] seed row
+	draw_rows();
 
-		if (cells[i] == 0) {
-			context.fillStyle = '#FB8604';  //orange
-			context.fillRect(((i * cellSize) + (width /2)) - ((cells.length * cellSize) / 2), generation * cellSize, cellSize, cellSize);
-		
-		} else if (cells[i] == 1) {
-			context.fillStyle = "#FCBA12"; //light orange
-			context.fillRect(((i * cellSize) + (width /2)) - ((cells.length * cellSize) / 2), generation * cellSize, cellSize, cellSize);
-		
-		} else if (cells[i] == 2) {
-			context.fillStyle = "#FDED2A"; //yellow
-			context.fillRect(((i * cellSize) + (width /2)) - ((cells.length * cellSize) / 2), generation * cellSize, cellSize, cellSize);
-		}		
-	}
-	generation++;
-
-	console.log("Cells[] initialized as single");
+	console.log("Cells[] initialized as single cell in middle of canvas");
 }
 
 function random_ruleset(){
@@ -90,6 +82,47 @@ function random_ruleset(){
 	ruleset[i] = (Math.floor(Math.random() * Math.floor(3)));
 	}
 	console.log("Randomized Ruleset: {" + ruleset + "}");
+
+	var rules_text = JSON.stringify(ruleset);
+
+	document.getElementById("frm_ruleset").value = rules_text;
+
+	count = 0;
+
+}
+
+//  ____                                    _   ____           _                 
+// / ___|  __ ___   _____    __ _ _ __   __| | |  _ \ ___  ___| |_ ___  _ __ ___ 
+// \___ \ / _` \ \ / / _ \  / _` | '_ \ / _` | | |_) / _ \/ __| __/ _ \| '__/ _ \
+//  ___) | (_| |\ V /  __/ | (_| | | | | (_| | |  _ <  __/\__ \ || (_) | | |  __/
+// |____/ \__,_| \_/ \___|  \__,_|_| |_|\__,_| |_| \_\___||___/\__\___/|_|  \___|
+
+
+function save_ruleset(){
+
+	var rules_text = document.getElementById("frm_ruleset").value;
+
+	ruleset = JSON.parse(rules_text);
+
+	console.log("Ruleset reset as: " + ruleset);
+
+	count++;
+
+	if (count == 1){
+
+		rules_restore = ruleset;
+	}
+
+}
+
+// restores ruleset to the first random set developed for the session
+
+
+function restore_ruleset(){		
+
+	var rules_text = JSON.stringify(rules_restore);
+
+	document.getElementById("frm_ruleset").value = rules_text;
 }
 
 //  ____                     _             
@@ -130,24 +163,8 @@ const redraw = () => {
 
 				cells[i] = nextgen[i];
 		}
-	}
-	for (let i = 0; i < cells.length; i++){ 
-
-		if (cells[i] == 0) {
-			context.fillStyle = '#FB8604';  //orange
-			context.fillRect(((i * cellSize) + (width /2)) - ((cells.length * cellSize) / 2), generation * cellSize, cellSize, cellSize);
-		
-		} else if (cells[i] == 1) {
-			context.fillStyle = "#FCBA12"; //light orange
-			context.fillRect(((i * cellSize) + (width /2)) - ((cells.length * cellSize) / 2), generation * cellSize, cellSize, cellSize);
-		
-		} else if (cells[i] == 2) {
-			context.fillStyle = "#FDED2A"; //yellow
-			context.fillRect(((i * cellSize) + (width /2)) - ((cells.length * cellSize) / 2), generation * cellSize, cellSize, cellSize);
-
-		}
-	}		
-	generation++;
+	}	
+	draw_rows();
 }
 
 const loop = () => {
@@ -157,6 +174,14 @@ const loop = () => {
 	setTimeout(function() {
 		requestAnimationFrame(loop);
 	}, 1000 / fps);
+}
+
+function refresh_loop() {
+
+	generation = 0;
+
+	loop();
+
 }
 
 /*
@@ -205,49 +230,42 @@ const initializeGraphics = () => {
 	window.onresize = setSize;
 }
 
-// TODO: Bind functions to keys:
-// 	** mutate rule
-//	** randomize rule
-//	** save and restore
-//  ** change cells[] initialization
-
 //  _____                 _     _   _                 _ _               
 // | ____|_   _____ _ __ | |_  | | | | __ _ _ __   __| | | ___ _ __ ___ 
 // |  _| \ \ / / _ \ '_ \| __| | |_| |/ _` | '_ \ / _` | |/ _ \ '__/ __|
 // | |___ \ V /  __/ | | | |_  |  _  | (_| | | | | (_| | |  __/ |  \__ \
 // |_____| \_/ \___|_| |_|\__| |_| |_|\__,_|_| |_|\__,_|_|\___|_|  |___/
 
-// define keypress functions
-function event_handlers(){
+// define keypress functions1 r1 R
+// function event_handlers(){
 
-	document.addEventListener("keypress", function onPress(event) {
+// 	document.addEventListener("keypress", function onPress(event) {
 
-		if (event.key === "R"){			// reload page
-			location.reload();
-		}
+// 		if (event.key === "R"){			// reload page
+// 			location.reload();
+// 		}
 
-		if (event.key === "r"){			// randomizes ruleset[]
-		random_ruleset();
-		}
+// 		// add a restore thing here to retrieve ruleset, allow for it to be modified or reused
 
-		if (event.key === "1"){			// cells[] starts as a single cell top mid canvas
-		random_cell_single();
-		generation = 0;
-		}
+// 		if (event.key === "r"){			// randomizes ruleset[]
+// 		random_ruleset();
+// 		}
 
-		if (event.key === "2"){			// cells[] starts as a random row at top of canvas
-		random_cell_row();
-		}
+// 		if (event.key === "1"){			// cells[] starts as a single cell top mid canvas
+// 		random_cell_single();
+// 		}
 
-		if (event.keyCode == 32){		// runs loop on spacebar press
-		loop();
-		}
+// 		if (event.key === "2"){			// cells[] starts as a random row at top of canvas
+// 		random_cell_row();
+// 		}
 
+// 		// add a restore thing here to retrieve cells initialization
 
-
-
-	});
-}
+// 		if (event.keyCode == 32){		// runs loop on spacebar press
+// 		loop();
+// 		}
+// 	});
+// }
 
 //  _____       _                ____       _       _   
 // | ____|_ __ | |_ _ __ _   _  |  _ \ ___ (_)_ __ | |_ 
@@ -259,5 +277,5 @@ function event_handlers(){
 
 window.onload = () => {
 	initializeGraphics();
-	event_handlers();
+	// event_handlers();
 }
