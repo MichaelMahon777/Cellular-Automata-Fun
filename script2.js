@@ -8,7 +8,6 @@ var fps = 60;
 var canvas;
 var context;
 var imageData;
-var count;
 
 // CA variables
 var cellSize = 5;
@@ -19,6 +18,7 @@ var generation = 0;
 var ruleset = Array(7);			// I set array size to accomodate max index calculated below
 var cells = Array(gridWidth);
 var nextgen = Array();
+var saved_rules = Array();
 
 //  ___       _ _   _       _ _              _                             
 // |_ _|_ __ (_) |_(_) __ _| (_)_______     / \   _ __ _ __ __ _ _   _ ___ 
@@ -57,8 +57,6 @@ function random_cell_row() {
 	draw_rows();
 
 	console.log("Cells[] initialized as complete row across canvas");
-
-	// add a save thing here
 }
 
 function cell_single() {
@@ -72,7 +70,7 @@ function cell_single() {
 
 	draw_rows();
 
-	console.log("Cells[] initialized as single cell in middle of canvas");
+	console.log("Cells[] initialized as single cell in middle of canvas");	// initializes with one cell set at 
 }
 
 function random_ruleset(){
@@ -81,14 +79,12 @@ function random_ruleset(){
 	for (let i = 0; i < ruleset.length; i++) {
 	ruleset[i] = (Math.floor(Math.random() * Math.floor(3)));
 	}
+
 	console.log("Randomized Ruleset: {" + ruleset + "}");
 
 	var rules_text = JSON.stringify(ruleset);
 
 	document.getElementById("frm_ruleset").value = rules_text;
-
-	count = 0;
-
 }
 
 //  ____                                    _   ____           _                 
@@ -97,32 +93,49 @@ function random_ruleset(){
 //  ___) | (_| |\ V /  __/ | (_| | | | | (_| | |  _ <  __/\__ \ || (_) | | |  __/
 // |____/ \__,_| \_/ \___|  \__,_|_| |_|\__,_| |_| \_\___||___/\__\___/|_|  \___|
 
-
 function save_ruleset(){
 
 	var rules_text = document.getElementById("frm_ruleset").value;
 
 	ruleset = JSON.parse(rules_text);
 
-	console.log("Ruleset reset as: " + ruleset);
+	Array.prototype.push.apply(saved_rules, ruleset);
 
-	count++;
+	console.log("Ruleset set as: " + ruleset);
 
-	if (count == 1){
+	console.log("saved_rules: " + saved_rules.length + " elements");
 
-		rules_restore = ruleset;
+	console.log("saved_rules: " + saved_rules);
+
+		for (let i = 0; i < saved_rules.length; i++){
+		console.log("saved_rules[0]: " + saved_rules[i]);
 	}
-
 }
 
-// restores ruleset to the first random set developed for the session
+function add_to_dropdown(){
 
+	var select = document.getElementById("rules_list");
 
-function restore_ruleset(){		
+	for(index in saved_rules) {
+		rules_text = JSON.stringify(saved_rules[index]);
+		select.options[saved_rules.length] = new Option(rules_text, index);
+	}
+}
 
-	var rules_text = JSON.stringify(rules_restore);
+function restore_ruleset(){
+
+	var selected_option = document.getElementById("rules_list").selectedIndex;
+
+	ruleset = saved_rules[selected_option - 1];
+
+	var rules_text = JSON.stringify(ruleset);
 
 	document.getElementById("frm_ruleset").value = rules_text;
+
+	console.log("Ruleset set as: " + ruleset);
+
+	console.log("Selected Index: " + selected_option);
+
 }
 
 //  ____                     _             
@@ -177,11 +190,8 @@ const loop = () => {
 }
 
 function refresh_loop() {
-
 	generation = 0;
-
 	loop();
-
 }
 
 /*
@@ -276,6 +286,7 @@ const initializeGraphics = () => {
 // when everything is loaded, set up and start running
 
 window.onload = () => {
+	count = 0;
 	initializeGraphics();
 	// event_handlers();
 }
