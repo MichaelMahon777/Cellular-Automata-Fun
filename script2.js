@@ -97,19 +97,11 @@ function save_ruleset(){
 
 	var rules_text = document.getElementById("frm_ruleset").value;
 
-	ruleset = JSON.parse(rules_text);
+	var ruleset = JSON.parse(rules_text);
 
-	Array.prototype.push.apply(saved_rules, ruleset);
+	saved_rules.push(ruleset);
 
 	console.log("Ruleset set as: " + ruleset);
-
-	console.log("saved_rules: " + saved_rules.length + " elements");
-
-	console.log("saved_rules: " + saved_rules);
-
-		for (let i = 0; i < saved_rules.length; i++){
-		console.log("saved_rules[0]: " + saved_rules[i]);
-	}
 }
 
 function add_to_dropdown(){
@@ -117,7 +109,9 @@ function add_to_dropdown(){
 	var select = document.getElementById("rules_list");
 
 	for(index in saved_rules) {
+
 		rules_text = JSON.stringify(saved_rules[index]);
+
 		select.options[saved_rules.length] = new Option(rules_text, index);
 	}
 }
@@ -133,8 +127,6 @@ function restore_ruleset(){
 	document.getElementById("frm_ruleset").value = rules_text;
 
 	console.log("Ruleset set as: " + ruleset);
-
-	console.log("Selected Index: " + selected_option);
 
 }
 
